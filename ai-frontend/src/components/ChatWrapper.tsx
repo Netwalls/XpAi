@@ -11,31 +11,17 @@ export const ChatWrapper: React.FC = () => {
   const [balance, setBalance] = React.useState<string | null>(null);
   const [chainInfo, setChainInfo] = React.useState<{ nativeCurrency: { symbol: string } } | null>(null);
 
-  React.useEffect(() => {
-    const getWalletInfo = async () => {
-      try {
-        if (window.ethereum) {
-          const provider = new ethers.BrowserProvider(window.ethereum);
-          const accounts = await provider.send("eth_requestAccounts", []);
-          setAccount(accounts[0]);
+  const handleWalletConnect = (address: string, walletBalance: string, walletChainInfo: any) => {
+    setAccount(address);
+    setBalance(walletBalance);
+    setChainInfo(walletChainInfo);
+  };
 
-          const balance = await provider.getBalance(accounts[0]);
-          setBalance(ethers.formatEther(balance));
-
-          const network = await provider.getNetwork();
-          setChainInfo({
-            nativeCurrency: {
-              symbol: network.name === 'sepolia' ? 'SEP' : 'ETH'
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Failed to get wallet info:', error);
-      }
-    };
-
-    getWalletInfo();
-  }, []);
+  const handleWalletDisconnect = () => {
+    setAccount(null);
+    setBalance(null);
+    setChainInfo(null);
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -44,9 +30,12 @@ export const ChatWrapper: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex-shrink-0">
-              <h1 className="text-xl font-bold text-white">Cross-Chain AI</h1>
+              <h1 className="text-xl font-bold text-white">AGENT. 1</h1>
             </div>
-            <WalletConnect />
+            <WalletConnect 
+              onWalletConnect={handleWalletConnect}
+              onWalletDisconnect={handleWalletDisconnect}
+            />
           </div>
         </div>
       </nav>

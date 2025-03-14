@@ -48,7 +48,7 @@ const LandingPage: React.FC = () => {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center">
             <Image src="/logo.png" alt="Logo" width={40} height={40} className="mr-2" />
-            <span className="text-2xl font-bold">AI DApp</span>
+            <span className="text-2xl font-bold">AGENT. 1</span>
           </div>
           <div className="flex items-center gap-8">
             <a href="#features" className="hover:text-[#D2691E] transition-colors">Features</a>
