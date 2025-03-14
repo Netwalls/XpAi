@@ -9,12 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@langchain/openai": "^0.4.4",
     "@types/elizabot": "^0.0.0",
     "elizabot": "^0.0.3",
     "ethers": "^6.13.5",
     "next": "15.2.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "typescript": "^5",

@@ -37,7 +37,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex-shrink-0">
-              <h1 className="text-xl font-bold text-white">Cross-Chain AI</h1>
+              <h1 className="text-xl font-bold text-white">Agent1</h1>
             </div>
             <WalletConnect 
               onWalletConnect={handleWalletConnect}
