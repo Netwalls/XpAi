@@ -1,22 +1,11 @@
-import LandingPage from '@/components/LandingPage';
+'use client';
 
-export default function Home() {
-  const [account, setAccount] = useState<string | null>(null);
-  const [balance, setBalance] = useState<string | null>(null);
-  const [chainInfo, setChainInfo] = useState<ChainInfo | null>(null);
+import React from 'react';
+import { AIChat } from './AIChat';
+import { TokenBalances } from './TokenBalances';
+import { WalletConnect } from './WalletConnect';
 
-  const handleWalletConnect = (newAccount: string, newBalance: string, newChainInfo: ChainInfo) => {
-    setAccount(newAccount);
-    setBalance(newBalance);
-    setChainInfo(newChainInfo);
-  };
-
-  const handleWalletDisconnect = () => {
-    setAccount(null);
-    setBalance(null);
-    setChainInfo(null);
-  };
-
+const ChatWrapper: React.FC = () => {
   return (
     <div className="min-h-screen bg-black">
       {/* Navigation */}
@@ -24,12 +13,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex-shrink-0">
-              <h1 className="text-xl font-bold text-white">Agent1</h1>
+              <h1 className="text-xl font-bold text-white">Cross-Chain AI</h1>
             </div>
-            <WalletConnect 
-              onWalletConnect={handleWalletConnect}
-              onWalletDisconnect={handleWalletDisconnect}
-            />
+            <WalletConnect />
           </div>
         </div>
       </nav>
@@ -54,17 +40,12 @@ export default function Home() {
 
           {/* Right Sidebar - Token Balances */}
           <div className="lg:col-span-3 space-y-6">
-            <TokenBalances 
-              account={account}
-              balance={balance}
-              chainInfo={chainInfo}
-            />
+            <TokenBalances />
           </div>
         </div>
       </main>
     </div>
   );
-=======
-  return <LandingPage />;
->>>>>>> 3015793b624f1214ca1c984cfda62d5afecf49a6
-}
+};
+
+export default ChatWrapper; 
