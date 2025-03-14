@@ -4,8 +4,39 @@ import React from 'react';
 import { AIChat } from './AIChat';
 import { TokenBalances } from './TokenBalances';
 import { WalletConnect } from './WalletConnect';
+import { ethers } from 'ethers';
 
-const ChatWrapper: React.FC = () => {
+export const ChatWrapper: React.FC = () => {
+  const [account, setAccount] = React.useState<string | null>(null);
+  const [balance, setBalance] = React.useState<string | null>(null);
+  const [chainInfo, setChainInfo] = React.useState<{ nativeCurrency: { symbol: string } } | null>(null);
+
+  React.useEffect(() => {
+    const getWalletInfo = async () => {
+      try {
+        if (window.ethereum) {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const accounts = await provider.send("eth_requestAccounts", []);
+          setAccount(accounts[0]);
+
+          const balance = await provider.getBalance(accounts[0]);
+          setBalance(ethers.formatEther(balance));
+
+          const network = await provider.getNetwork();
+          setChainInfo({
+            nativeCurrency: {
+              symbol: network.name === 'sepolia' ? 'SEP' : 'ETH'
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Failed to get wallet info:', error);
+      }
+    };
+
+    getWalletInfo();
+  }, []);
+
   return (
     <div className="min-h-screen bg-black">
       {/* Navigation */}
@@ -40,7 +71,11 @@ const ChatWrapper: React.FC = () => {
 
           {/* Right Sidebar - Token Balances */}
           <div className="lg:col-span-3 space-y-6">
-            <TokenBalances />
+            <TokenBalances 
+              account={account}
+              balance={balance}
+              chainInfo={chainInfo}
+            />
           </div>
         </div>
       </main>

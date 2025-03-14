@@ -544,19 +544,17 @@ Waiting for Espresso Network confirmation... ⏳`,
                     <span className="text-mocha/70">Status:</span> {msg.action.status || 'pending'}
                   </div>
                 )}
+                {msg.action && msg.action.type === 'balance' && msg.action.data && 'balance' in msg.action.data && (
+                  <TokenBalances 
+                    account={account}
+                    balance={balance}
+                    chainInfo={chainInfo}
+                  />
+                )}
               </div>
             </div>
           ))}
           <div ref={messagesEndRef} />
-        </div>
-
-        {/* Token Balances Panel */}
-        <div className="w-80 p-4 border-l border-mocha/10">
-          <TokenBalances 
-            account={account}
-            balance={balance}
-            chainInfo={chainInfo}
-          />
         </div>
       </div>
 
