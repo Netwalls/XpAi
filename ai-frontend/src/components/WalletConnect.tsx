@@ -18,111 +18,107 @@ export interface ChainInfo {
 }
 
 interface WalletConnectProps {
-  onWalletConnect?: (account: string, balance: string, chainInfo: ChainInfo) => void;
+  onWalletConnect?: (address: string, balance: string, chainInfo: any) => void;
   onWalletDisconnect?: () => void;
 }
 
 export const WalletConnect: React.FC<WalletConnectProps> = ({ onWalletConnect, onWalletDisconnect }) => {
-  const [account, setAccount] = useState<string>('')
+  const [account, setAccount] = useState<string | null>(null)
   const [isConnecting, setIsConnecting] = useState(false)
 
-  const getChainInfo = async (provider: ethers.BrowserProvider) => {
-    const network = await provider.getNetwork()
-    const chainId = Number(network.chainId)
-    let name = network.name
-    let symbol = 'ETH'
-
-    // Add chain info mapping
-    const chainMap: Record<number, { name: string; symbol: string }> = {
-      1: { name: 'Ethereum Mainnet', symbol: 'ETH' },
-      5: { name: 'Goerli', symbol: 'ETH' },
-      11155111: { name: 'Sepolia', symbol: 'ETH' },
-      // Add more chains as needed
+  useEffect(() => {
+    // Check if wallet is already connected
+    const checkConnection = async () => {
+      if (window.ethereum) {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum)
+          const accounts = await provider.listAccounts()
+          
+          if (accounts.length > 0) {
+            const address = accounts[0].address
+            setAccount(address)
+            
+            if (onWalletConnect) {
+              const balance = await provider.getBalance(address)
+              const network = await provider.getNetwork()
+              const chainInfo = {
+                nativeCurrency: {
+                  symbol: network.name === 'sepolia' ? 'SEP' : 'ETH'
+                }
+              }
+              onWalletConnect(address, ethers.formatEther(balance), chainInfo)
+            }
+          }
+        } catch (error) {
+          console.error('Error checking wallet connection:', error)
+        }
+      }
     }
-
-    if (chainMap[chainId]) {
-      name = chainMap[chainId].name
-      symbol = chainMap[chainId].symbol
-    }
-
-    return {
-      id: chainId,
-      name,
-      nativeCurrency: { symbol }
-    }
-  }
-
-  const updateWalletInfo = async (provider: ethers.BrowserProvider, address: string) => {
-    try {
-      const balance = await provider.getBalance(address)
-      const chainInfo = await getChainInfo(provider)
-      onWalletConnect?.(address, ethers.formatEther(balance), chainInfo)
-    } catch (error) {
-      console.error('Error updating wallet info:', error)
-    }
-  }
+    
+    checkConnection()
+  }, [onWalletConnect])
 
   const connectWallet = async () => {
-    if (!window.ethereum) {
-      alert('Please install MetaMask!')
-      return
-    }
-
-    try {
-      setIsConnecting(true)
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      const accounts = await provider.send("eth_requestAccounts", [])
-      const address = accounts[0]
-      setAccount(address)
-      await updateWalletInfo(provider, address)
-
-      // Listen for account changes
-      window.ethereum.on('accountsChanged', async (accounts: string[]) => {
-        if (accounts.length > 0) {
-          setAccount(accounts[0])
-          await updateWalletInfo(provider, accounts[0])
-        } else {
-          setAccount('')
-          onWalletDisconnect?.()
+    if (window.ethereum) {
+      try {
+        setIsConnecting(true)
+        const provider = new ethers.BrowserProvider(window.ethereum)
+        const accounts = await provider.send("eth_requestAccounts", [])
+        const address = accounts[0]
+        setAccount(address)
+        
+        if (onWalletConnect) {
+          const balance = await provider.getBalance(address)
+          const network = await provider.getNetwork()
+          const chainInfo = {
+            nativeCurrency: {
+              symbol: network.name === 'sepolia' ? 'SEP' : 'ETH'
+            }
+          }
+          onWalletConnect(address, ethers.formatEther(balance), chainInfo)
         }
-      })
-
-      // Listen for chain changes
-      window.ethereum.on('chainChanged', async () => {
-        const newProvider = new ethers.BrowserProvider(window.ethereum)
-        if (account) {
-          await updateWalletInfo(newProvider, account)
-        }
-      })
-
-    } catch (error) {
-      console.error('Error connecting wallet:', error)
-    } finally {
-      setIsConnecting(false)
+      } catch (error) {
+        console.error('Error connecting wallet:', error)
+      } finally {
+        setIsConnecting(false)
+      }
+    } else {
+      alert('Please install MetaMask to connect your wallet')
     }
   }
 
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  const disconnectWallet = () => {
+    setAccount(null)
+    if (onWalletDisconnect) {
+      onWalletDisconnect()
+    }
   }
 
   return (
     <div>
-      {!account ? (
-        <button
+      {account ? (
+        <div className="flex items-center space-x-2">
+          <div className="px-3 py-1 rounded-lg bg-[#111] border border-[#2c1810] text-gray-400 text-sm">
+            {account.substring(0, 6)}...{account.substring(account.length - 4)}
+          </div>
+          <button 
+            onClick={disconnectWallet}
+            className="bg-[#2c1810] hover:bg-[#8B4513] text-white px-4 py-2 rounded-lg transition-colors duration-300"
+          >
+            Disconnect
+          </button>
+        </div>
+      ) : (
+        <button 
           onClick={connectWallet}
           disabled={isConnecting}
-          className="bg-surface-dark text-white px-6 py-2 rounded-xl hover:bg-surface-hover transition-colors disabled:bg-surface-dark/50 border border-gray-800"
+          className="relative group bg-gradient-to-r from-[#8B4513] to-[#D2691E] text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 overflow-hidden"
         >
-          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
-        </button>
-      ) : (
-        <div className="flex items-center space-x-2 bg-surface-dark/80 px-4 py-2 rounded-xl border border-gray-800">
-          <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
-          <span className="text-sm font-medium text-white">
-            {formatAddress(account)}
+          <span className="relative z-10">
+            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
           </span>
-        </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#D2691E] to-[#8B4513] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </button>
       )}
     </div>
   )

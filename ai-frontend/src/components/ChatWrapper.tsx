@@ -26,7 +26,7 @@ export const ChatWrapper: React.FC = () => {
   return (
     <div className="min-h-screen bg-black">
       {/* Navigation */}
-      <nav className="bg-black border-b border-gray-800">
+      <nav className="bg-black border-b border-[#2c1810]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex-shrink-0">
@@ -45,7 +45,7 @@ export const ChatWrapper: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Sidebar - Transaction History */}
           <div className="lg:col-span-3 space-y-6">
-            <div className="bg-surface-dark shadow-glow border border-gray-800 rounded-xl p-6 backdrop-blur-sm">
+            <div className="bg-[#111] shadow-lg border border-[#2c1810] rounded-xl p-6 backdrop-blur-sm">
               <h2 className="text-lg font-medium text-white mb-4">Recent Transactions</h2>
               <div className="space-y-3">
                 <p className="text-sm text-gray-400">No recent transactions</p>

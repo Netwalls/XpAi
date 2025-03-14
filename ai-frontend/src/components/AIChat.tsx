@@ -484,64 +484,64 @@ Waiting for Espresso Network confirmation... ⏳`,
   }
 
   return (
-    <div className="bg-cream shadow-warm border border-mocha/10 rounded-xl h-[600px] flex flex-col backdrop-blur-sm">
+    <div className="bg-black shadow-lg border border-[#2c1810] rounded-xl h-[600px] flex flex-col backdrop-blur-sm overflow-hidden">
       {/* Agent Status Bar */}
-      <div className="border-b border-mocha/10 p-2 bg-cream/50 flex space-x-4">
+      <div className="border-b border-[#2c1810] p-2 bg-black/50 flex space-x-4">
         {agents.map(agent => (
           <div key={agent.id} className="flex items-center space-x-2">
             <div className={`w-2 h-2 rounded-full ${
               agent.status === 'idle' ? 'bg-green-500' :
-              agent.status === 'processing' ? 'bg-yellow-500' :
+              agent.status === 'processing' ? 'bg-[#D2691E]' :
               'bg-blue-500'
-            }`} />
-            <span className="text-sm text-mocha/70">{agent.id}</span>
-            <span className="text-xs text-mocha/50">{agent.chain}</span>
+            } animate-pulse`} />
+            <span className="text-sm text-white/70">{agent.id}</span>
+            <span className="text-xs text-white/50">{agent.chain}</span>
           </div>
         ))}
       </div>
 
       <div className="flex flex-1">
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-black to-[#111]">
           {messages.map((msg, idx) => (
             <div
               key={msg.timestamp + idx}
               className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-xl p-3 shadow-inner-warm ${
+                className={`max-w-[80%] rounded-xl p-3 ${
                   msg.sender === 'user'
-                    ? 'bg-mocha text-cream'
-                    : 'bg-accent-peach/20 text-mocha'
+                    ? 'bg-[#2c1810] text-white shadow-md'
+                    : 'bg-[#D2691E]/10 text-white border border-[#D2691E]/20 shadow-md'
                 }`}
               >
                 {msg.text}
                 {msg.action && msg.action.type === 'transfer' && msg.action.data && 'fromChain' in msg.action.data && (
-                  <div className="bg-cream/80 rounded-lg p-3 text-mocha border border-mocha/10">
-                    <span className="text-mocha-light font-medium">Transfer Details:</span>
+                  <div className="bg-black/40 rounded-lg p-3 text-white border border-[#D2691E]/30 mt-3">
+                    <span className="text-[#D2691E] font-medium">Transfer Details:</span>
                     <br />
-                    <span className="text-mocha/70">From Chain:</span> {msg.action.data.fromChain}
+                    <span className="text-white/70">From Chain:</span> {msg.action.data.fromChain}
                     <br />
-                    <span className="text-mocha/70">To Chain:</span> {msg.action.data.targetChain}
+                    <span className="text-white/70">To Chain:</span> {msg.action.data.targetChain}
                     <br />
-                    <span className="text-mocha/70">Amount:</span> {msg.action.data.amount} ETH
+                    <span className="text-white/70">Amount:</span> {msg.action.data.amount} ETH
                     <br />
-                    <span className="text-mocha/70">To:</span> {msg.action.data.toAddress}
+                    <span className="text-white/70">To:</span> {msg.action.data.toAddress}
                     <br />
-                    <span className="text-mocha/70">Status:</span> {msg.action.status || 'pending'}
+                    <span className="text-white/70">Status:</span> {msg.action.status || 'pending'}
                   </div>
                 )}
                 {msg.action && msg.action.type === 'swap' && msg.action.data && 'fromToken' in msg.action.data && (
-                  <div className="bg-cream/80 rounded-lg p-3 text-mocha border border-mocha/10">
-                    <span className="text-mocha-light font-medium">Swap Details:</span>
+                  <div className="bg-black/40 rounded-lg p-3 text-white border border-[#D2691E]/30 mt-3">
+                    <span className="text-[#D2691E] font-medium">Swap Details:</span>
                     <br />
-                    <span className="text-mocha/70">From:</span> {msg.action.data.amount} {msg.action.data.fromToken}
+                    <span className="text-white/70">From:</span> {msg.action.data.amount} {msg.action.data.fromToken}
                     <br />
-                    <span className="text-mocha/70">To:</span> {msg.action.data.toToken}
+                    <span className="text-white/70">To:</span> {msg.action.data.toToken}
                     <br />
-                    <span className="text-mocha/70">Chain:</span> {msg.action.data.chain}
+                    <span className="text-white/70">Chain:</span> {msg.action.data.chain}
                     <br />
-                    <span className="text-mocha/70">Status:</span> {msg.action.status || 'pending'}
+                    <span className="text-white/70">Status:</span> {msg.action.status || 'pending'}
                   </div>
                 )}
                 {msg.action && msg.action.type === 'balance' && msg.action.data && 'balance' in msg.action.data && (
@@ -559,7 +559,7 @@ Waiting for Espresso Network confirmation... ⏳`,
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-mocha/10 p-4 bg-cream/50">
+      <div className="border-t border-[#2c1810] p-4 bg-black/80 backdrop-blur-sm">
         <form onSubmit={handleSubmit} className="flex space-x-4">
           <input
             type="text"
@@ -567,14 +567,17 @@ Waiting for Espresso Network confirmation... ⏳`,
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             disabled={isProcessing}
-            className="flex-1 bg-cream-light text-mocha rounded-xl border border-mocha/10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent-peach focus:border-transparent disabled:bg-cream-dark/50 placeholder-mocha/50"
+            className="flex-1 bg-black/50 text-white rounded-xl border border-[#2c1810] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#D2691E] focus:border-transparent disabled:bg-black/30 placeholder-white/50"
           />
           <button
             type="submit"
             disabled={isProcessing}
-            className="bg-mocha text-cream px-6 py-2 rounded-xl hover:bg-mocha-light transition-colors disabled:bg-mocha/50 shadow-warm"
+            className="bg-gradient-to-r from-[#8B4513] to-[#D2691E] text-white px-6 py-2 rounded-xl hover:opacity-90 transition-all duration-300 disabled:opacity-50 shadow-md relative overflow-hidden group"
           >
-            {isProcessing ? 'Processing...' : 'Send'}
+            <span className="relative z-10">
+              {isProcessing ? 'Processing...' : 'Send'}
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#D2691E] to-[#8B4513] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </button>
         </form>
       </div>

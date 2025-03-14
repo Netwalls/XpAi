@@ -15,7 +15,7 @@ interface TokenBalancesProps {
 
 export const TokenBalances: React.FC<TokenBalancesProps> = ({ account, balance, chainInfo }) => {
   return (
-    <div className="bg-surface-dark shadow-glow border border-surface-border rounded-xl p-6 backdrop-blur-sm">
+    <div className="bg-[#111] shadow-lg border border-[#2c1810] rounded-xl p-6 backdrop-blur-sm">
       <h2 className="text-lg font-medium text-white mb-4">Token Balances</h2>
       <div className="space-y-3">
         {!account ? (
@@ -23,9 +23,9 @@ export const TokenBalances: React.FC<TokenBalancesProps> = ({ account, balance, 
         ) : (
           <div className="space-y-4">
             {/* Native Token Balance */}
-            <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 border border-gray-800">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-black/40 border border-[#2c1810] hover:border-[#D2691E] transition-colors duration-300">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#8B4513] to-[#D2691E] flex items-center justify-center">
                   <span className="text-xs font-medium text-white">
                     {chainInfo?.nativeCurrency.symbol || 'ETH'}
                   </span>
@@ -40,7 +40,7 @@ export const TokenBalances: React.FC<TokenBalancesProps> = ({ account, balance, 
             </div>
             
             {/* Placeholder for other tokens */}
-            <div className="text-sm text-gray-400 text-center mt-4">
+            <div className="text-sm text-gray-400 text-center mt-4 p-3 border border-[#2c1810] rounded-lg bg-black/20">
               Other tokens will appear here
             </div>
           </div>

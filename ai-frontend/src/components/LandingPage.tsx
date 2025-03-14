@@ -5,6 +5,7 @@ import { WalletConnect } from './WalletConnect';
 import ChatWrapper from './ChatWrapper';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { ethers } from 'ethers';
 
 interface FeatureCardProps {
   title: string;
@@ -128,7 +129,7 @@ const LandingPage: React.FC = () => {
             >
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-[#D2691E] to-[#8B4513] rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
-                <WalletConnect />
+                <LandingPageWalletButton />
               </div>
               
               <button
@@ -437,5 +438,38 @@ const AnimatedFeatureCard: React.FC<FeatureCardProps & { delay: number }> = ({ t
         <p className="text-gray-400">{description}</p>
       </div>
     </motion.div>
+  );
+};
+
+const LandingPageWalletButton: React.FC = () => {
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  const handleConnect = async () => {
+    setIsConnecting(true);
+    try {
+      if (window.ethereum) {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+      } else {
+        alert('Please install MetaMask to connect your wallet');
+      }
+    } catch (error) {
+      console.error('Error connecting wallet:', error);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleConnect}
+      disabled={isConnecting}
+      className="relative group bg-gradient-to-r from-[#8B4513] to-[#D2691E] text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 overflow-hidden"
+    >
+      <span className="relative z-10">
+        {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+      </span>
+      <div className="absolute inset-0 bg-gradient-to-r from-[#D2691E] to-[#8B4513] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    </button>
   );
 };
