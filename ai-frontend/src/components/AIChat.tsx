@@ -7,6 +7,7 @@ import characterConfig from '../config/character.json'
 import { AgentRuntime } from '../lib/AgentRuntime'
 import { Character } from '../lib/types'
 import { IntentParser } from '../lib/intentParser'
+import { TokenBalances } from './TokenBalances'
 
 interface Message {
   text: string
@@ -14,7 +15,7 @@ interface Message {
   timestamp: number
   action?: {
     type: 'transfer' | 'swap' | 'balance'
-    data?: TransferAction | SwapAction
+    data?: TransferAction | SwapAction | BalanceData
     confirmationId?: string
     status?: 'pending' | 'confirmed' | 'failed'
   }
@@ -29,10 +30,16 @@ interface TransferAction {
 }
 
 interface SwapAction {
-  fromToken: string;
-  toToken: string;
-  amount: string;
-  chain: string;
+  fromToken: string
+  toToken: string
+  amount: string
+  chain: string
+}
+
+interface BalanceData {
+  address: string
+  balance: string
+  chain: string
 }
 
 interface AgentState {
@@ -43,23 +50,26 @@ interface AgentState {
 }
 
 interface TransactionResponse {
-  text: string;
-  confirmationId?: string;
-  status: 'pending' | 'confirmed' | 'failed';
-  type?: 'transfer' | 'swap';
-  data?: TransferAction | SwapAction;
+  text: string
+  confirmationId?: string
+  status: 'pending' | 'confirmed' | 'failed'
+  type?: 'transfer' | 'swap' | 'balance'
+  data?: TransferAction | SwapAction | BalanceData
 }
 
 export const AIChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const [account, setAccount] = useState<string | null>(null)
+  const [balance, setBalance] = useState<string | null>(null)
+  const [chainInfo, setChainInfo] = useState<{ nativeCurrency: { symbol: string } } | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const elizaRef = useRef<ElizaBot>(new ElizaBot())
   const agentRef = useRef<AgentRuntime>(new AgentRuntime({
     character: characterConfig,
-    provider: new ethers.JsonRpcProvider(process.env.VITE_RPC_URL),
-    espressoRpcUrl: process.env.VITE_ESPRESSO_RPC_URL
+    provider: new ethers.JsonRpcProvider(process.env.VITE_RPC_URL || 'https://rpc.sepolia.org'),
+    espressoRpcUrl: process.env.VITE_ESPRESSO_RPC_URL || 'https://query.cappuccino.testnet.espresso.network/v0'
   }))
   const intentParser = useRef(new IntentParser())
   const [agents, setAgents] = useState<AgentState[]>([
@@ -118,6 +128,36 @@ export const AIChat: React.FC = () => {
     scrollToBottom()
   }, [messages])
 
+  // Add effect to get wallet info
+  useEffect(() => {
+    const getWalletInfo = async () => {
+      try {
+        if (window.ethereum) {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const accounts = await provider.send("eth_requestAccounts", []);
+          const address = accounts[0];
+          setAccount(address);
+
+          // Get balance
+          const balance = await provider.getBalance(address);
+          setBalance(ethers.formatEther(balance));
+
+          // Get chain info
+          const network = await provider.getNetwork();
+          setChainInfo({
+            nativeCurrency: {
+              symbol: network.name === 'sepolia' ? 'SEP' : 'ETH'
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Failed to get wallet info:', error);
+      }
+    };
+
+    getWalletInfo();
+  }, []);
+
   const handleUserInput = async (input: string): Promise<TransactionResponse> => {
     const intent = await intentParser.current.parseIntent(input)
     
@@ -152,19 +192,39 @@ export const AIChat: React.FC = () => {
         }
 
       case 'checkBalance':
-        if (intent.walletAddress) {
+        try {
+          const chain = intent.sourceChain || 'cappuccino';
+          // If no specific address provided, use connected wallet
+          const address = intent.walletAddress || await agentRef.current.getWalletAddress();
+          
+          if (!address) {
+            return {
+              text: "Please connect your wallet or provide an address to check balance.",
+              status: 'failed'
+            };
+          }
+
           const balance = await agentRef.current.executeAction('getBalance', {
-            address: intent.walletAddress
+            address,
+            chain
           });
+          
           return {
-            text: `Balance: ${balance} ETH`,
-            status: 'pending'
+            text: `💰 Balance for ${address}:\n${balance} ETH on ${chain}`,
+            status: 'confirmed',
+            type: 'balance',
+            data: {
+              address,
+              balance,
+              chain
+            }
+          };
+        } catch (error: any) {
+          return {
+            text: `Failed to get balance: ${error.message}`,
+            status: 'failed'
           };
         }
-        return {
-          text: "Please provide a wallet address to check the balance.",
-          status: 'failed'
-        };
 
       default:
         return {
@@ -440,53 +500,64 @@ Waiting for Espresso Network confirmation... ⏳`,
         ))}
       </div>
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, idx) => (
-          <div
-            key={msg.timestamp + idx}
-            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
+      <div className="flex flex-1">
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.map((msg, idx) => (
             <div
-              className={`max-w-[80%] rounded-xl p-3 shadow-inner-warm ${
-                msg.sender === 'user'
-                  ? 'bg-mocha text-cream'
-                  : 'bg-accent-peach/20 text-mocha'
-              }`}
+              key={msg.timestamp + idx}
+              className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {msg.text}
-              {msg.action && msg.action.type === 'transfer' && msg.action.data && 'fromChain' in msg.action.data && (
-                <div className="bg-cream/80 rounded-lg p-3 text-mocha border border-mocha/10">
-                  <span className="text-mocha-light font-medium">Transfer Details:</span>
-                  <br />
-                  <span className="text-mocha/70">From Chain:</span> {msg.action.data.fromChain}
-                  <br />
-                  <span className="text-mocha/70">To Chain:</span> {msg.action.data.targetChain}
-                  <br />
-                  <span className="text-mocha/70">Amount:</span> {msg.action.data.amount} ETH
-                  <br />
-                  <span className="text-mocha/70">To:</span> {msg.action.data.toAddress}
-                  <br />
-                  <span className="text-mocha/70">Status:</span> {msg.action.status || 'pending'}
-                </div>
-              )}
-              {msg.action && msg.action.type === 'swap' && msg.action.data && 'fromToken' in msg.action.data && (
-                <div className="bg-cream/80 rounded-lg p-3 text-mocha border border-mocha/10">
-                  <span className="text-mocha-light font-medium">Swap Details:</span>
-                  <br />
-                  <span className="text-mocha/70">From:</span> {msg.action.data.amount} {msg.action.data.fromToken}
-                  <br />
-                  <span className="text-mocha/70">To:</span> {msg.action.data.toToken}
-                  <br />
-                  <span className="text-mocha/70">Chain:</span> {msg.action.data.chain}
-                  <br />
-                  <span className="text-mocha/70">Status:</span> {msg.action.status || 'pending'}
-                </div>
-              )}
+              <div
+                className={`max-w-[80%] rounded-xl p-3 shadow-inner-warm ${
+                  msg.sender === 'user'
+                    ? 'bg-mocha text-cream'
+                    : 'bg-accent-peach/20 text-mocha'
+                }`}
+              >
+                {msg.text}
+                {msg.action && msg.action.type === 'transfer' && msg.action.data && 'fromChain' in msg.action.data && (
+                  <div className="bg-cream/80 rounded-lg p-3 text-mocha border border-mocha/10">
+                    <span className="text-mocha-light font-medium">Transfer Details:</span>
+                    <br />
+                    <span className="text-mocha/70">From Chain:</span> {msg.action.data.fromChain}
+                    <br />
+                    <span className="text-mocha/70">To Chain:</span> {msg.action.data.targetChain}
+                    <br />
+                    <span className="text-mocha/70">Amount:</span> {msg.action.data.amount} ETH
+                    <br />
+                    <span className="text-mocha/70">To:</span> {msg.action.data.toAddress}
+                    <br />
+                    <span className="text-mocha/70">Status:</span> {msg.action.status || 'pending'}
+                  </div>
+                )}
+                {msg.action && msg.action.type === 'swap' && msg.action.data && 'fromToken' in msg.action.data && (
+                  <div className="bg-cream/80 rounded-lg p-3 text-mocha border border-mocha/10">
+                    <span className="text-mocha-light font-medium">Swap Details:</span>
+                    <br />
+                    <span className="text-mocha/70">From:</span> {msg.action.data.amount} {msg.action.data.fromToken}
+                    <br />
+                    <span className="text-mocha/70">To:</span> {msg.action.data.toToken}
+                    <br />
+                    <span className="text-mocha/70">Chain:</span> {msg.action.data.chain}
+                    <br />
+                    <span className="text-mocha/70">Status:</span> {msg.action.status || 'pending'}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Token Balances Panel */}
+        <div className="w-80 p-4 border-l border-mocha/10">
+          <TokenBalances 
+            account={account}
+            balance={balance}
+            chainInfo={chainInfo}
+          />
+        </div>
       </div>
 
       {/* Input Area */}

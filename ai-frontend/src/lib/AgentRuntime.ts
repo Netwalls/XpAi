@@ -211,11 +211,26 @@ export class AgentRuntime {
     );
   }
 
-  private async handleGetBalance(params: { address: string }) {
-    if (!this.wallet?.provider)
-      throw new Error("Wallet or provider not initialized");
-    const balance = await this.wallet.provider.getBalance(params.address);
-    return ethers.formatEther(balance);
+  private async handleGetBalance(params: { address: string; chain?: string }) {
+    try {
+      // First try browser provider (MetaMask)
+      if (window.ethereum) {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const balance = await provider.getBalance(params.address);
+        return ethers.formatEther(balance);
+      }
+
+      // Fallback to RPC provider
+      if (this.provider) {
+        const balance = await this.provider.getBalance(params.address);
+        return ethers.formatEther(balance);
+      }
+
+      throw new Error("No provider available to check balance");
+    } catch (error: any) {
+      console.error("Failed to get balance:", error);
+      throw new Error(`Failed to get balance: ${error.message}`);
+    }
   }
 
   public async executeAction(action: string, params: any) {
@@ -290,6 +305,8 @@ export class AgentRuntime {
           }
         }
       }
+      case "getBalance":
+        return this.handleGetBalance(params);
       default: {
         let lastError = null;
 
@@ -319,7 +336,7 @@ export class AgentRuntime {
   }
 
   public async checkConfirmation(confirmationId: string): Promise<boolean> {
-    return this.espressoHandler.isConfirmed(confirmationId);
+    return this.espressoHandler.checkConfirmation(confirmationId);
   }
 
   public getCharacter() {
