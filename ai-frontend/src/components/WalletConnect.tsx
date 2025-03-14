@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-interface ChainInfo {
+export interface ChainInfo {
   id: number;
   name: string;
   nativeCurrency: {
