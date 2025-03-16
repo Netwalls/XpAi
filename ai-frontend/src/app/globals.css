@@ -47,3 +47,8 @@ body {
   font-family: 'VanDerLeck', sans-serif;
   letter-spacing: 0.05em;
 }
+
+/* You can also add a global loading animation class to your CSS */
+.loading-spinner {
+  @apply animate-spin rounded-full border-t-2 border-b-2 border-[#D2691E];
+}

@@ -566,6 +566,13 @@ Waiting for Espresso Network confirmation... ⏳`,
           </button>
         </form>
       </div>
+
+      {isProcessing && (
+        <div className="flex items-center justify-center py-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#D2691E]"></div>
+          <span className="ml-3 text-sm text-gray-400">Processing...</span>
+        </div>
+      )}
     </div>
   )
 } 

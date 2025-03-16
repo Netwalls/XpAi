@@ -115,7 +115,15 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({ onWalletConnect, o
           className="relative group bg-gradient-to-r from-[#8B4513] to-[#D2691E] text-white px-6 py-2 rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 overflow-hidden"
         >
           <span className="relative z-10">
-            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+            {isConnecting ? (
+              <button 
+                disabled
+                className="bg-[#2c1810] text-white px-4 py-2 rounded-lg flex items-center"
+              >
+                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#D2691E] mr-2"></div>
+                Connecting...
+              </button>
+            ) : 'Connect Wallet'}
           </span>
           <div className="absolute inset-0 bg-gradient-to-r from-[#D2691E] to-[#8B4513] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </button>
