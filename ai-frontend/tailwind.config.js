@@ -39,6 +39,9 @@ module.exports = {
         warm: "0 0 15px rgba(232, 187, 176, 0.1)",
         "inner-warm": "inset 0 0 15px rgba(232, 187, 176, 0.05)",
       },
+      fontFamily: {
+        'vanderleck': ['VanDerLeck', 'sans-serif'],
+      },
     },
   },
   plugins: [],

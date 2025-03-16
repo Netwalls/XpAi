@@ -485,21 +485,6 @@ Waiting for Espresso Network confirmation... ⏳`,
 
   return (
     <div className="bg-black shadow-lg border border-[#2c1810] rounded-xl h-[600px] flex flex-col backdrop-blur-sm overflow-hidden">
-      {/* Agent Status Bar */}
-      <div className="border-b border-[#2c1810] p-2 bg-black/50 flex space-x-4">
-        {agents.map(agent => (
-          <div key={agent.id} className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${
-              agent.status === 'idle' ? 'bg-green-500' :
-              agent.status === 'processing' ? 'bg-[#D2691E]' :
-              'bg-blue-500'
-            } animate-pulse`} />
-            <span className="text-sm text-white/70">{agent.id}</span>
-            <span className="text-xs text-white/50">{agent.chain}</span>
-          </div>
-        ))}
-      </div>
-
       <div className="flex flex-1">
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-black to-[#111]">

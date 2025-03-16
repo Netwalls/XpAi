@@ -6,6 +6,7 @@ import ChatWrapper from './ChatWrapper';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ethers } from 'ethers';
+import { useRouter } from 'next/navigation';
 
 interface FeatureCardProps {
   title: string;
@@ -26,9 +27,14 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon }) =
 const LandingPage: React.FC = () => {
   const [showChat, setShowChat] = useState(false);
   const [email, setEmail] = useState('');
+  const router = useRouter();
 
   const handleShowChat = () => {
     setShowChat(true);
+  };
+
+  const navigateToChat = () => {
+    router.push('/chat');
   };
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -48,15 +54,18 @@ const LandingPage: React.FC = () => {
       <nav className="border-b border-[#2c1810] py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} className="mr-2" />
-            <span className="text-2xl font-bold">AGENT. 1</span>
+            <Image src="/agentnoname.png" alt="Logo" width={80} height={80} className="mr-1" />
+            <span className="text-2xl font-bold font-vanderleck tracking-wider">AGENT. 1</span>
           </div>
           <div className="flex items-center gap-8">
             <a href="#features" className="hover:text-[#D2691E] transition-colors">Features</a>
             <a href="#pricing" className="hover:text-[#D2691E] transition-colors">Pricing</a>
             <a href="#about" className="hover:text-[#D2691E] transition-colors">About</a>
-            <button className="bg-[#D2691E] px-6 py-2 rounded-lg hover:bg-[#8B4513] transition-colors">
-              Get started
+            <button 
+              onClick={navigateToChat}
+              className="bg-[#D2691E] px-6 py-2 rounded-lg hover:bg-[#8B4513] transition-colors"
+            >
+              AI Chat
             </button>
           </div>
         </div>
@@ -243,7 +252,7 @@ const LandingPage: React.FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-5xl font-bold text-center mb-4">Become a trendsetter</h2>
+            <h2 className="text-5xl font-bold text-center mb-4">AGENT. 1</h2>
             <p className="text-gray-400 text-center mb-16 max-w-2xl mx-auto">
               Join the future of content creation and monetization with our cutting-edge Web3 platform
             </p>
@@ -365,54 +374,66 @@ const LandingPage: React.FC = () => {
       {/* Footer */}
       <footer className="bg-[#111] pt-20 pb-8">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <h3 className="text-xl font-bold mb-6">Join our newsletter</h3>
-              <form onSubmit={handleSubscribe} className="flex gap-2">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="bg-black border border-[#2c1810] rounded px-4 py-2 flex-grow"
-                />
-                <button
-                  type="submit"
-                  className="bg-[#D2691E] px-6 py-2 rounded hover:bg-[#8B4513] transition-colors"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-6">Platform</h3>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-[#D2691E]">Features</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-[#D2691E]">Security</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-[#D2691E]">Pricing</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-6">Resources</h3>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-[#D2691E]">Documentation</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-[#D2691E]">API Reference</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-[#D2691E]">Support</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-6">Follow us</h3>
-              <div className="flex gap-4">
-                <a href="#" className="text-gray-400 hover:text-[#D2691E]">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                  </svg>
-                </a>
+          <div className="flex justify-center mb-12">
+            <div className="grid md:grid-cols-3 gap-12 max-w-4xl">
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-6">Platform</h3>
+                <ul className="space-y-3">
+                  <li><a href="#features" className="text-gray-400 hover:text-[#D2691E] transition-colors">Features</a></li>
+                  <li><a href="#" className="text-gray-400 hover:text-[#D2691E] transition-colors">Security</a></li>
+                  <li><a href="#pricing" className="text-gray-400 hover:text-[#D2691E] transition-colors">Pricing</a></li>
+                </ul>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-6">Resources</h3>
+                <ul className="space-y-3">
+                  <li><a href="#" className="text-gray-400 hover:text-[#D2691E] transition-colors">Documentation</a></li>
+                  <li><a href="#" className="text-gray-400 hover:text-[#D2691E] transition-colors">API Reference</a></li>
+                  <li><a href="#" className="text-gray-400 hover:text-[#D2691E] transition-colors">Support</a></li>
+                </ul>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-6">Follow us</h3>
+                <div className="flex justify-center gap-4">
+                  {/* Twitter Icon */}
+                  <a href="#" className="text-gray-400 hover:text-[#D2691E] transition-colors">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                    </svg>
+                  </a>
+                  
+                  {/* YouTube Icon */}
+                  <a href="#" className="text-gray-400 hover:text-[#D2691E] transition-colors">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                  </a>
+                  
+                  {/* Email Icon */}
+                  <a 
+                    href="mailto:stephanienwankwo0@gmail.com" 
+                    className="text-gray-400 hover:text-[#D2691E] transition-colors"
+                    title="Send us an email"
+                  >
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
+          
+          {/* Logo and brand at the bottom */}
+          <div className="flex justify-center mb-8">
+            <div className="flex items-center">
+              <Image src="/agentnoname.png" alt="Logo" width={50} height={50} className="mr-2" />
+              <span className="text-xl font-bold font-vanderleck tracking-wider">AGENT. 1</span>
+            </div>
+          </div>
+          
           <div className="border-t border-[#2c1810] pt-8 text-center text-gray-400">
-            <p>&copy; 2024 AI DApp. All rights reserved.</p>
+            <p>&copy; 2025 AGENT. 1. All rights reserved.</p>
           </div>
         </div>
       </footer>
